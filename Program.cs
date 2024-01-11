@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 internal class Program
 {
@@ -12,10 +10,10 @@ internal class Program
             {
                 await db.Database.MigrateAsync();
                 await db.Database.EnsureCreatedAsync();
-
-                var isInitializingData = true;
-                if (isInitializingData)
+                
+                if (!db.Teams.Any())
                 {
+                    // Initialize Data
                     var bcn = new Team()
                     {
                         Name = "FC Barcelona",
@@ -38,21 +36,20 @@ internal class Program
                     await db.AddAsync(rm);
                     await db.SaveChangesAsync();
                 }
-                else
+
+                foreach (var team in db.Teams.Include(t => t.Players))
                 {
-                    foreach (var team in db.Teams.Include(t => t.Players))
+                    System.Diagnostics.Debug.WriteLine($"Team - Id: {team.Id} Name: {team.Name} Country: {team.Country} Players total: {team.Players.Count}");
+                    foreach (var player in team.Players)
                     {
-                        System.Diagnostics.Debug.WriteLine($"Team - Id: {team.Id} Name: {team.Name} Country: {team.Country} Players total: {team.Players.Count}");
-                        foreach (var player in team.Players)
-                        {
-                            System.Diagnostics.Debug.WriteLine($"Player - Id: {player.Id} Name: {player.Name} Position: {player.Position} TeamId: {player.TeamId} Team: {player.Team.Name}");
-                        }
+                        System.Diagnostics.Debug.WriteLine($"Player - Id: {player.Id} Name: {player.Name} Position: {player.Position} TeamId: {player.TeamId} Team: {player.Team.Name}");
                     }
-                }
+                }                
             }
         }
         catch (Exception ex)
         {
+            // An exception is thwon if try using the data base without the initialize migration in migrations folder
         }
 
         Console.ReadLine();

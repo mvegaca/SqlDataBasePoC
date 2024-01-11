@@ -28,6 +28,9 @@ public class DataBaseContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<Team>().Property(t => t.Name).IsRequired();
         modelBuilder.Entity<Team>().Property(t => t.Country).IsRequired(false);
+
+        // This 1:N relationship is created by convention (adding the fields Players, TeamId and Team)
+        // However its also possible to define manually.
         modelBuilder.Entity<Team>()
             .HasMany(t => t.Players)
             .WithOne(p => p.Team)
@@ -36,7 +39,7 @@ public class DataBaseContext : DbContext
 
         modelBuilder.Entity<Player>().Property(p => p.Name).IsRequired();
         modelBuilder.Entity<Player>().Property(p => p.Position).IsRequired(false);
-    }    
+    }
 }
 
 public class Team
